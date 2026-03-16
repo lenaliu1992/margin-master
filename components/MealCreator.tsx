@@ -5,6 +5,16 @@ import { Calculator, Minus, Plus, Search, ShoppingBag, X } from 'lucide-react';
 import type { FrontendDish } from '@/services/api/dishesApi';
 import type { FrontendMeal } from '@/services/api/mealsApi';
 
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent } from '@/components/ui/card';
+
 interface MealCreatorProps {
   dishes: FrontendDish[];
   initialData?: FrontendMeal | null;
@@ -142,310 +152,333 @@ export const MealCreator: React.FC<MealCreatorProps> = ({
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
-      <div className="animate-in fade-in zoom-in flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl duration-200">
-        <div className="flex items-center justify-between border-b border-slate-100 bg-white p-6">
-          <div>
-            <h2 className="flex items-center gap-2 text-xl font-bold text-slate-800">
+    <Dialog open onOpenChange={(open) => !open && onCancel()}>
+      <DialogContent className="max-w-4xl max-h-[90vh] p-0 gap-0">
+        <DialogHeader className="p-6 pb-0">
+          <div className="flex items-center justify-between">
+            <DialogTitle className="flex items-center gap-2 text-xl">
               <ShoppingBag className="h-5 w-5 text-emerald-500" />
               {initialData ? '编辑团购套餐 (Edit Meal Plan)' : '新建团购套餐 (Create Meal Plan)'}
-            </h2>
-            <p className="mt-1 text-sm text-slate-500">选择菜品组合，设定价格并分析毛利</p>
+            </DialogTitle>
           </div>
-          <button
-            type="button"
-            onClick={onCancel}
-            className="rounded-full p-2 transition-colors hover:bg-slate-100"
-          >
-            <X className="h-5 w-5 text-slate-500" />
-          </button>
-        </div>
+          <p className="text-sm text-muted-foreground mt-1">选择菜品组合，设定价格并分析毛利</p>
+        </DialogHeader>
 
         <div className="flex flex-1 flex-col overflow-hidden md:flex-row">
-          <div className="custom-scrollbar flex w-full flex-col overflow-y-auto border-r border-slate-100 bg-slate-50 p-6 md:w-1/2">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-700">
+          {/* 左侧：菜品选择 */}
+          <div className="w-full md:w-1/2 border-r bg-muted/30 p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">
                 选择菜品 (Select Dishes)
               </h3>
-              <span className="text-xs font-normal text-slate-400">已选品种: {selectedDishes.size}</span>
+              <Badge variant="secondary" className="text-xs">
+                已选: {selectedDishes.size}
+              </Badge>
             </div>
 
             <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
                 type="text"
                 placeholder="搜索菜品名称..."
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
-                className="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm transition-all focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                className="pl-9"
               />
             </div>
 
-            <div className="grid flex-1 grid-cols-1 gap-2 overflow-y-auto pr-1">
-              {filteredDishes.length === 0 ? (
-                <div className="py-8 text-center text-sm text-slate-400">未找到匹配菜品</div>
-              ) : (
-                filteredDishes.map((dish) => {
-                  const qty = selectedDishes.get(dish.id) || 0;
-                  const isSelected = qty > 0;
+            <ScrollArea className="h-[400px] pr-2">
+              <div className="space-y-2">
+                {filteredDishes.length === 0 ? (
+                  <div className="py-8 text-center text-sm text-muted-foreground">未找到匹配菜品</div>
+                ) : (
+                  filteredDishes.map((dish) => {
+                    const qty = selectedDishes.get(dish.id) || 0;
+                    const isSelected = qty > 0;
 
-                  return (
-                    <div
-                      key={dish.id}
-                      className={`flex flex-col rounded-lg border p-3 transition-all ${
-                        isSelected
-                          ? 'border-emerald-500 bg-white shadow-sm ring-1 ring-emerald-500'
-                          : 'border-slate-200 bg-white hover:border-slate-300'
-                      }`}
-                    >
-                      <div
-                        className="flex cursor-pointer items-center"
-                        onClick={() => toggleDish(dish.id)}
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={(event) => {
-                          if (event.key === 'Enter' || event.key === ' ') {
-                            event.preventDefault();
-                            toggleDish(dish.id);
-                          }
-                        }}
+                    return (
+                      <Card
+                        key={dish.id}
+                        className={`transition-all ${
+                          isSelected
+                            ? 'border-emerald-500 ring-1 ring-emerald-500'
+                            : 'border-border hover:border-muted-foreground/30'
+                        }`}
                       >
-                        <div
-                          className={`flex h-4 w-4 items-center justify-center rounded border transition-colors ${
-                            isSelected ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-slate-300 bg-white'
-                          }`}
-                        >
-                          {isSelected ? <div className="h-2 w-2 rounded-full bg-white" /> : null}
-                        </div>
-                        <div className="ml-3 flex flex-1 items-center justify-between">
-                          <span className={`text-sm ${isSelected ? 'font-medium text-slate-800' : 'text-slate-600'}`}>
-                            {dish.name}
-                          </span>
-                          <div className="flex flex-col items-end">
-                            <span className="font-mono text-xs text-slate-400">
-                              {dish.price ? `¥${dish.price}` : '-'} /{' '}
-                              <span className="font-bold text-slate-500">¥{dish.cost}</span>
-                            </span>
+                        <CardContent className="p-3">
+                          <div
+                            className="flex cursor-pointer items-center"
+                            onClick={() => toggleDish(dish.id)}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(event) => {
+                              if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                toggleDish(dish.id);
+                              }
+                            }}
+                          >
+                            <Checkbox
+                              checked={isSelected}
+                              onCheckedChange={() => toggleDish(dish.id)}
+                              className="data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500"
+                            />
+                            <div className="ml-3 flex flex-1 items-center justify-between">
+                              <span className={`text-sm ${isSelected ? 'font-medium' : ''}`}>
+                                {dish.name}
+                              </span>
+                              <div className="flex flex-col items-end">
+                                <span className="font-mono text-xs text-muted-foreground">
+                                  {dish.price ? `¥${dish.price}` : '-'} /{' '}
+                                  <span className="font-bold text-foreground">¥{dish.cost}</span>
+                                </span>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      </div>
 
-                      {isSelected ? (
-                        <div className="animate-in slide-in-from-top-1 mt-3 flex items-center justify-between border-t border-slate-100 pt-2">
-                          <span className="pl-1 text-xs font-medium text-slate-400">数量 (Qty):</span>
-                          <div className="flex items-center gap-3 rounded-lg bg-slate-50 p-1">
-                            <button
-                              type="button"
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                updateQuantity(dish.id, -1);
-                              }}
-                              className="flex h-6 w-6 items-center justify-center rounded bg-white text-slate-600 shadow-sm transition-colors hover:bg-rose-50 hover:text-rose-500"
-                            >
-                              <Minus className="h-3 w-3" />
-                            </button>
-                            <span className="w-6 text-center text-sm font-bold text-slate-800">{qty}</span>
-                            <button
-                              type="button"
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                updateQuantity(dish.id, 1);
-                              }}
-                              className="flex h-6 w-6 items-center justify-center rounded bg-white text-slate-600 shadow-sm transition-colors hover:bg-emerald-50 hover:text-emerald-500"
-                            >
-                              <Plus className="h-3 w-3" />
-                            </button>
-                          </div>
-                        </div>
-                      ) : null}
-                    </div>
-                  );
-                })
-              )}
-            </div>
+                          {isSelected && (
+                            <div className="mt-3 flex items-center justify-between border-t pt-2">
+                              <span className="text-xs font-medium text-muted-foreground">数量 (Qty):</span>
+                              <div className="flex items-center gap-3 rounded-lg bg-muted p-1">
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-6 w-6 hover:bg-rose-50 hover:text-rose-500"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    updateQuantity(dish.id, -1);
+                                  }}
+                                >
+                                  <Minus className="h-3 w-3" />
+                                </Button>
+                                <span className="w-6 text-center text-sm font-bold">{qty}</span>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-6 w-6 hover:bg-emerald-50 hover:text-emerald-500"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    updateQuantity(dish.id, 1);
+                                  }}
+                                >
+                                  <Plus className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
+                  })
+                )}
+              </div>
+            </ScrollArea>
           </div>
 
-          <div className="custom-scrollbar w-full overflow-y-auto bg-white p-6 md:w-1/2">
+          {/* 右侧：套餐配置 */}
+          <div className="w-full md:w-1/2 p-4 overflow-y-auto">
             <div className="space-y-6">
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">套餐名称</label>
-                <input
+                <Label htmlFor="meal-name" className="mb-2 block">
+                  套餐名称
+                </Label>
+                <Input
+                  id="meal-name"
                   type="text"
                   value={name}
                   onChange={(event) => setName(event.target.value)}
-                  className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                   placeholder="例如：双人超值烤肉餐"
                 />
               </div>
 
-              <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
-                <span className="mb-2 block text-xs text-slate-500">已选菜品清单</span>
-                <div className="custom-scrollbar mb-3 flex max-h-24 flex-wrap gap-2 overflow-y-auto">
-                  {selectedDishesList.length > 0 ? (
-                    selectedDishesList.map((item) => (
-                      <span
-                        key={item.id}
-                        className="flex items-center gap-1 rounded border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-600 shadow-sm"
-                      >
-                        {item.name}
-                        {item.qty > 1 ? (
-                          <span className="rounded bg-emerald-100 px-1 text-[10px] text-emerald-700">x{item.qty}</span>
-                        ) : null}
+              <Card className="bg-muted/50">
+                <CardContent className="p-4">
+                  <span className="mb-2 block text-xs text-muted-foreground">已选菜品清单</span>
+                  <ScrollArea className="max-h-24 mb-3">
+                    <div className="flex flex-wrap gap-2">
+                      {selectedDishesList.length > 0 ? (
+                        selectedDishesList.map((item) => (
+                          <Badge
+                            key={item.id}
+                            variant="outline"
+                            className="bg-background shadow-sm"
+                          >
+                            {item.name}
+                            {item.qty > 1 && (
+                              <Badge variant="secondary" className="ml-1 text-[10px] bg-emerald-100 text-emerald-700">
+                                x{item.qty}
+                              </Badge>
+                            )}
+                          </Badge>
+                        ))
+                      ) : (
+                        <span className="text-xs text-muted-foreground">请选择左侧菜品...</span>
+                      )}
+                    </div>
+                  </ScrollArea>
+
+                  <Separator className="my-3" />
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <span className="mb-1 block text-xs text-muted-foreground">组合总原价 (Value)</span>
+                      <span className="font-mono text-lg font-bold text-muted-foreground">
+                        ¥{totalOriginalPrice.toFixed(2)}
                       </span>
-                    ))
-                  ) : (
-                    <span className="text-xs text-slate-400">请选择左侧菜品...</span>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 border-t border-slate-200/50 pt-3">
-                  <div>
-                    <span className="mb-1 block text-xs text-slate-500">组合总原价 (Value)</span>
-                    <span className="font-mono text-lg font-bold text-slate-600">¥{totalOriginalPrice.toFixed(2)}</span>
+                    </div>
+                    <div>
+                      <span className="mb-1 block text-xs text-muted-foreground">组合总成本 (Cost)</span>
+                      <span className="font-mono text-lg font-bold">¥{totalCost.toFixed(2)}</span>
+                    </div>
                   </div>
-                  <div>
-                    <span className="mb-1 block text-xs text-slate-500">组合总成本 (Cost)</span>
-                    <span className="font-mono text-lg font-bold text-slate-800">¥{totalCost.toFixed(2)}</span>
-                  </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
 
-              <div className="grid grid-cols-1 gap-6">
-                <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="space-y-4">
+                {/* 秒杀价 1 */}
+                <Card className="relative overflow-hidden">
                   <div className="absolute -right-8 -top-8 h-16 w-16 rounded-bl-full bg-purple-500/10" />
-                  <label className="mb-2 block text-sm font-bold text-purple-700">秒杀价 1</label>
-                  <div className="flex items-center gap-4">
-                    <div className="relative flex-1">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">¥</span>
-                      <input
-                        type="number"
-                        value={promoPrice1}
-                        onChange={(event) =>
-                          setPromoPrice1(event.target.value === '' ? '' : parseFloat(event.target.value))
-                        }
-                        className="w-full rounded-lg border border-slate-200 py-2 pl-8 pr-4 outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200"
-                        placeholder="0.00"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1 text-right">
-                      <span
-                        className={`font-mono text-xl font-bold ${
-                          calculateMargin(promoPrice1) < 20 ? 'text-rose-500' : 'text-emerald-500'
-                        }`}
-                      >
-                        {calculateMargin(promoPrice1).toFixed(1)}%
-                      </span>
-                      {promoPrice1 && totalOriginalPrice > 0 ? (
-                        <span className="rounded bg-purple-50 px-1.5 py-0.5 text-xs text-purple-600">
-                          {calculateDiscount(promoPrice1).toFixed(1)}折
-                        </span>
-                      ) : null}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                  <div className="absolute -right-8 -top-8 h-16 w-16 rounded-bl-full bg-amber-500/10" />
-                  <label className="mb-2 block text-sm font-bold text-amber-700">官方补贴金额（可选）</label>
-                  <div className="flex items-center gap-4">
-                    <div className="relative flex-1">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">¥</span>
-                      <input
-                        type="number"
-                        value={promoPrice2 ?? ''}
-                        onChange={(event) => {
-                          const value = event.target.value;
-                          setPromoPrice2(value === '' ? undefined : parseFloat(value));
-                        }}
-                        onBlur={(event) => {
-                          if (event.target.value === '') {
-                            setPromoPrice2(undefined);
+                  <CardContent className="p-4">
+                    <Label className="mb-2 block text-sm font-bold text-purple-700">秒杀价 1</Label>
+                    <div className="flex items-center gap-4">
+                      <div className="relative flex-1">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">¥</span>
+                        <Input
+                          type="number"
+                          value={promoPrice1}
+                          onChange={(event) =>
+                            setPromoPrice1(event.target.value === '' ? '' : parseFloat(event.target.value))
                           }
-                        }}
-                        className="w-full rounded-lg border border-slate-200 py-2 pl-8 pr-4 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200"
-                        placeholder="留空表示无补贴"
-                      />
+                          className="pl-8 focus-visible:ring-purple-200"
+                          placeholder="0.00"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1 text-right">
+                        <span
+                          className={`font-mono text-xl font-bold ${
+                            calculateMargin(promoPrice1) < 20 ? 'text-rose-500' : 'text-emerald-500'
+                          }`}
+                        >
+                          {calculateMargin(promoPrice1).toFixed(1)}%
+                        </span>
+                        {promoPrice1 && totalOriginalPrice > 0 && (
+                          <Badge variant="secondary" className="bg-purple-50 text-purple-600 text-xs">
+                            {calculateDiscount(promoPrice1).toFixed(1)}折
+                          </Badge>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex flex-col gap-1 text-right">
-                      {promoPrice2 !== undefined && promoPrice2 !== '' ? (
-                        <>
-                          <span
-                            className={`font-mono text-xl font-bold ${
-                              calculateMargin(
+                  </CardContent>
+                </Card>
+
+                {/* 官方补贴金额 */}
+                <Card className="relative overflow-hidden">
+                  <div className="absolute -right-8 -top-8 h-16 w-16 rounded-bl-full bg-amber-500/10" />
+                  <CardContent className="p-4">
+                    <Label className="mb-2 block text-sm font-bold text-amber-700">官方补贴金额（可选）</Label>
+                    <div className="flex items-center gap-4">
+                      <div className="relative flex-1">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">¥</span>
+                        <Input
+                          type="number"
+                          value={promoPrice2 ?? ''}
+                          onChange={(event) => {
+                            const value = event.target.value;
+                            setPromoPrice2(value === '' ? undefined : parseFloat(value));
+                          }}
+                          onBlur={(event) => {
+                            if (event.target.value === '') {
+                              setPromoPrice2(undefined);
+                            }
+                          }}
+                          className="pl-8 focus-visible:ring-amber-200"
+                          placeholder="留空表示无补贴"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1 text-right">
+                        {promoPrice2 !== undefined && promoPrice2 !== '' ? (
+                          <>
+                            <span
+                              className={`font-mono text-xl font-bold ${
+                                calculateMargin(
+                                  (typeof promoPrice1 === 'number' ? promoPrice1 : 0) -
+                                    (typeof promoPrice2 === 'number' ? promoPrice2 : 0)
+                                ) < 15
+                                  ? 'text-rose-500'
+                                  : 'text-emerald-500'
+                              }`}
+                            >
+                              {calculateMargin(
                                 (typeof promoPrice1 === 'number' ? promoPrice1 : 0) -
                                   (typeof promoPrice2 === 'number' ? promoPrice2 : 0)
-                              ) < 15
-                                ? 'text-rose-500'
-                                : 'text-emerald-500'
-                            }`}
-                          >
+                              ).toFixed(1)}
+                              %
+                            </span>
+                            <Badge variant="secondary" className="bg-amber-50 text-amber-600 text-xs">
+                              官方补贴后毛利率
+                            </Badge>
+                          </>
+                        ) : (
+                          <span className="text-sm italic text-muted-foreground">未设置</span>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* 最终到手价 */}
+                {promoPrice1 && promoPrice2 !== undefined && promoPrice2 !== '' && (
+                  <Card className="border-emerald-200 bg-emerald-50 relative overflow-hidden">
+                    <div className="absolute -right-8 -top-8 h-16 w-16 rounded-bl-full bg-emerald-500/10" />
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="text-sm font-bold text-emerald-700">最终到手价</span>
+                          <span className="block text-xs text-muted-foreground">= 秒杀价1 - 官方补贴金额</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="font-mono text-2xl font-bold text-emerald-600">
+                            ¥
+                            {(
+                              (typeof promoPrice1 === 'number' ? promoPrice1 : 0) -
+                              (typeof promoPrice2 === 'number' ? promoPrice2 : 0)
+                            ).toFixed(2)}
+                          </span>
+                          <Badge variant="secondary" className="mt-1 bg-emerald-100 text-emerald-600 text-xs">
+                            毛利率：
                             {calculateMargin(
                               (typeof promoPrice1 === 'number' ? promoPrice1 : 0) -
                                 (typeof promoPrice2 === 'number' ? promoPrice2 : 0)
-                            ).toFixed(1)}%
-                          </span>
-                          <span className="rounded bg-amber-50 px-1.5 py-0.5 text-xs text-amber-600">
-                            官方补贴后毛利率
-                          </span>
-                        </>
-                      ) : (
-                        <span className="text-sm italic text-slate-400">未设置</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {promoPrice1 && promoPrice2 !== undefined && promoPrice2 !== '' ? (
-                  <div className="relative overflow-hidden rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-                    <div className="absolute -right-8 -top-8 h-16 w-16 rounded-bl-full bg-emerald-500/10" />
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="text-sm font-bold text-emerald-700">最终到手价</span>
-                        <span className="block text-xs text-slate-500">= 秒杀价1 - 官方补贴金额</span>
+                            ).toFixed(1)}
+                            %
+                          </Badge>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <span className="font-mono text-2xl font-bold text-emerald-600">
-                          ¥
-                          {(
-                            (typeof promoPrice1 === 'number' ? promoPrice1 : 0) -
-                            (typeof promoPrice2 === 'number' ? promoPrice2 : 0)
-                          ).toFixed(2)}
-                        </span>
-                        <span className="mt-1 block rounded bg-emerald-100 px-2 py-0.5 text-xs text-emerald-600">
-                          毛利率：
-                          {calculateMargin(
-                            (typeof promoPrice1 === 'number' ? promoPrice1 : 0) -
-                              (typeof promoPrice2 === 'number' ? promoPrice2 : 0)
-                          ).toFixed(1)}%
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ) : null}
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             </div>
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 border-t border-slate-100 bg-slate-50 p-6">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="rounded-lg px-6 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-800"
-          >
+        <DialogFooter className="p-6 pt-4 border-t bg-muted/30">
+          <Button type="button" variant="outline" onClick={onCancel}>
             取消
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             onClick={() => void handleSave()}
             disabled={saving}
-            className="flex items-center gap-2 rounded-lg bg-slate-900 px-6 py-2.5 text-sm font-medium text-white shadow-lg transition-all hover:bg-slate-800 hover:shadow-xl disabled:cursor-not-allowed disabled:bg-slate-400"
+            className="bg-foreground hover:bg-foreground/90"
           >
-            <Calculator className="h-4 w-4" />
+            <Calculator className="h-4 w-4 mr-2" />
             {saving ? '保存中...' : initialData ? '更新配置' : '保存套餐配置'}
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
