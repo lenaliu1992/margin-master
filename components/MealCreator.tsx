@@ -506,8 +506,8 @@ export const MealCreator: React.FC<MealCreatorProps> = ({
           </section>
 
           {/* Right: 定价区 */}
-          <section className="min-w-[360px] shrink-0 overflow-y-auto bg-gray-50 px-5 py-5">
-            <div className="space-y-5">
+          <section className="min-h-0 min-w-[360px] shrink-0 overflow-y-auto bg-gray-50 px-5 py-5">
+            <div className="space-y-4">
               {/* 套餐名称 */}
               <div>
                 <label className="mb-2 block text-sm font-bold text-gray-900">套餐名称</label>
