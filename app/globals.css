@@ -1,76 +1,89 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
 
 @import "tailwindcss";
 
 :root {
-  /* shadcn/ui CSS Variables - Emerald Theme */
+  /* shadcn/ui CSS Variables - 深海蓝专业主题 */
   --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
+  --foreground: 222 47% 11%;
   --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
+  --card-foreground: 222 47% 11%;
   --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
-  --primary: 160 84% 39%;
+  --popover-foreground: 222 47% 11%;
+  --primary: 213 52% 24%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-  --accent: 210 40% 96.1%;
-  --accent-foreground: 222.2 47.4% 11.2%;
-  --destructive: 0 84.2% 60.2%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222 47% 11%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 210 40% 96%;
+  --accent-foreground: 222 47% 11%;
+  --destructive: 0 84% 60%;
   --destructive-foreground: 210 40% 98%;
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 160 84% 39%;
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 213 52% 24%;
   --radius: 0.5rem;
 
-  /* 主色调 - 清新薄荷绿 */
-  --primary-old: #10b981;
-  --primary-light: #d1fae5;
-  --primary-dark: #059669;
+  /* 主色调 - 深海蓝专业色系 */
+  --primary-base: #1E3A5F;
+  --primary-light: #E8F4FC;
+  --primary-dark: #0F2847;
+  --primary-hover: #2A4A73;
 
   /* 辅助色 */
-  --accent-old: #06b6d4;
-  --accent-light: #cffafe;
+  --accent-base: #0284C7;
+  --accent-light: #E0F2FE;
 
   /* 数据驱动颜色 */
-  --success: #10b981;
-  --warning: #f59e0b;
-  --danger: #ef4444;
-  --info: #3b82f6;
+  --success: #059669;
+  --success-light: #D1FAE5;
+  --warning: #D97706;
+  --warning-light: #FEF3C7;
+  --danger: #DC2626;
+  --danger-light: #FEE2E2;
+  --info: #0284C7;
+  --info-light: #E0F2FE;
 
-  /* 中性色 */
-  --gray-50: #f9fafb;
-  --gray-100: #f3f4f6;
-  --gray-200: #e5e7eb;
-  --gray-300: #d1d5db;
-  --gray-400: #9ca3af;
-  --gray-500: #6b7280;
-  --gray-600: #4b5563;
-  --gray-700: #374151;
-  --gray-800: #1f2937;
-  --gray-900: #111827;
+  /* 中性色 - Slate 色系 */
+  --gray-50: #F8FAFC;
+  --gray-100: #F1F5F9;
+  --gray-200: #E2E8F0;
+  --gray-300: #CBD5E1;
+  --gray-400: #94A3B8;
+  --gray-500: #64748B;
+  --gray-600: #475569;
+  --gray-700: #334155;
+  --gray-800: #1E293B;
+  --gray-900: #0F172A;
 
-  /* 阴影 */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  /* 阴影 - 更精致 */
+  --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.04);
+  --shadow: 0 2px 4px 0 rgb(15 23 42 / 0.06);
+  --shadow-md: 0 4px 12px 0 rgb(15 23 42 / 0.08);
+  --shadow-lg: 0 8px 24px 0 rgb(15 23 42 / 0.12);
+  --shadow-xl: 0 16px 48px 0 rgb(15 23 42 / 0.16);
+  --shadow-2xl: 0 24px 64px 0 rgb(15 23 42 / 0.20);
 
-  /* 圆角 */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.5rem;
+  /* 圆角 - 商务偏小 */
+  --radius-sm: 6px;
+  --radius-base: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
 
   /* 过渡 */
-  --transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
 
-  --bg-color: #f9fafb;
-  --fg-color: #1f2937;
+  /* 弹窗动画 */
+  --dialog-enter: 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  --overlay-enter: 150ms ease-out;
+
+  --bg-color: #F8FAFC;
+  --fg-color: #0F172A;
 }
 
 .dark {
@@ -102,13 +115,26 @@
 }
 
 body {
-  font-family: 'Noto Sans SC', 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%);
-  color: hsl(var(--foreground));
+  font-family: 'Noto Sans SC', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--gray-50);
+  color: var(--gray-900);
   line-height: 1.6;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* 标题字体 */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* 数据字体 */
+.font-mono, .tabular-nums {
+  font-family: 'SF Mono', 'JetBrains Mono', 'Consolas', monospace;
+  font-variant-numeric: tabular-nums;
 }
 
 /* 自定义滚动条 */
@@ -388,6 +414,52 @@ body {
   }
 }
 
+/* 弹窗入场动画 */
+@keyframes dialogEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes overlayFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 选中状态脉冲 */
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+/* 数量变化闪烁 */
+@keyframes valueFlash {
+  0% { background-color: var(--primary-light); }
+  100% { background-color: transparent; }
+}
+
+/* 进度条填充 */
+@keyframes progressFill {
+  from { stroke-dashoffset: 283; }
+}
+
+/* 卡片入场 */
+@keyframes cardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .animate-fadeIn {
   animation: fadeIn var(--transition-slow) ease-out;
 }
@@ -398,6 +470,65 @@ body {
 
 .animate-scaleIn {
   animation: scaleIn var(--transition) ease-out;
+}
+
+.animate-dialogEnter {
+  animation: dialogEnter var(--dialog-enter) ease-out;
+}
+
+.animate-overlayFade {
+  animation: overlayFade var(--overlay-enter) ease-out;
+}
+
+.animate-pulse {
+  animation: pulse 200ms ease-out;
+}
+
+.animate-valueFlash {
+  animation: valueFlash 400ms ease-out;
+}
+
+.animate-cardSlideIn {
+  animation: cardSlideIn 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* 交错动画延迟 */
+.stagger-1 { animation-delay: 50ms; }
+.stagger-2 { animation-delay: 100ms; }
+.stagger-3 { animation-delay: 150ms; }
+.stagger-4 { animation-delay: 200ms; }
+.stagger-5 { animation-delay: 250ms; }
+
+/* 卡片入场动画 */
+@keyframes cardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-cardSlideIn {
+  animation: cardSlideIn 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* 弹窗入场动画 */
+@keyframes dialogEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-dialogEnter {
+  animation: dialogEnter 240ms cubic-bezier(0.16, 1, 0.3, 1) ease-out;
 }
 
 /* ========================================

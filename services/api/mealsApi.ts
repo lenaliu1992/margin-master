@@ -8,6 +8,7 @@ export interface FrontendMeal {
   standardPrice: number;
   promoPrice1: number;
   promoPrice2?: number;
+  subsidyCount?: number; // 补贴份数
   order?: number;
   isSingleDish?: boolean;
   syncDishId?: string;
@@ -22,6 +23,7 @@ function toFrontendMeal(backendMeal: any): FrontendMeal {
     standardPrice: backendMeal.standard_price,
     promoPrice1: backendMeal.promo_price1,
     promoPrice2: backendMeal.promo_price2,
+    subsidyCount: backendMeal.subsidy_count,
     order: backendMeal.sort_order,
     isSingleDish: backendMeal.is_single_dish === 1 || backendMeal.is_single_dish === true,
     syncDishId: backendMeal.sync_dish_id,
@@ -36,6 +38,7 @@ function toBackendMeal(frontendMeal: Partial<FrontendMeal>): any {
   if (frontendMeal.standardPrice !== undefined) result.standard_price = frontendMeal.standardPrice;
   if (frontendMeal.promoPrice1 !== undefined) result.promo_price1 = frontendMeal.promoPrice1;
   if (frontendMeal.promoPrice2 !== undefined) result.promo_price2 = frontendMeal.promoPrice2;
+  if (frontendMeal.subsidyCount !== undefined) result.subsidy_count = frontendMeal.subsidyCount;
   if (frontendMeal.order !== undefined) result.sort_order = frontendMeal.order;
   return result;
 }
