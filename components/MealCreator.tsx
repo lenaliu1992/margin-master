@@ -114,7 +114,7 @@ const MarginRing: React.FC<{ value: number; size?: number }> = ({ value, size = 
   );
 };
 
-// 菜品卡片组件
+// 菜品卡片组件 - 紧凑版
 const DishCard: React.FC<{
   dish: FrontendDish;
   quantity: number;
@@ -137,10 +137,10 @@ const DishCard: React.FC<{
       role="button"
       tabIndex={0}
       className={cn(
-        'group rounded-2xl border bg-white p-4 transition-all duration-200',
+        'group rounded-xl border bg-white p-3 transition-all duration-200',
         isSelected
-          ? 'border-[#1E3A5F] bg-gradient-to-br from-[#F8FAFC] to-[#E8F4FC] shadow-md translate-x-1'
-          : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+          ? 'border-[#1E3A5F] bg-gradient-to-br from-[#F8FAFC] to-[#E8F4FC] shadow-sm'
+          : 'border-gray-200 hover:border-gray-300'
       )}
       style={{ animationDelay: `${animationDelay}ms` }}
       onClick={onToggle}
@@ -151,13 +151,13 @@ const DishCard: React.FC<{
         }
       }}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-center gap-3">
         <Checkbox
           checked={isSelected}
           onCheckedChange={onToggle}
           onClick={(event) => event.stopPropagation()}
           className={cn(
-            'mt-0.5 h-5 w-5 rounded-md border-2 transition-all duration-200',
+            'h-4 w-4 rounded border-2 transition-all duration-200',
             isSelected
               ? 'border-[#1E3A5F] bg-[#1E3A5F]'
               : 'border-gray-300 group-hover:border-gray-400'
@@ -165,71 +165,54 @@ const DishCard: React.FC<{
         />
 
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className={cn('truncate text-sm font-semibold', isSelected ? 'text-gray-900' : 'text-gray-800')}>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className={cn('truncate text-sm font-semibold', isSelected ? 'text-gray-900' : 'text-gray-700')}>
               {dish.name}
             </span>
-            <span className={cn('rounded-full px-2.5 py-1 text-[11px] font-medium', style.bg, style.text)}>
+            <span className={cn('rounded-full px-2 py-0.5 text-[10px] font-medium', style.bg, style.text)}>
               {category}
             </span>
           </div>
 
-          <div className="mt-1 text-xs text-gray-400">ID: {dish.id.slice(0, 8)}</div>
-
-          <div className="mt-3 grid grid-cols-2 gap-2">
-            <div className="rounded-xl border border-gray-100 bg-gray-50 px-3 py-2 transition-colors duration-200 group-hover:border-gray-200">
-              <div className="text-[11px] text-gray-400">单点价</div>
-              <div className="mt-0.5 font-semibold text-gray-900 tabular-nums">
-                {formatCurrency(dish.price || 0)}
-              </div>
-            </div>
-            <div className="rounded-xl border border-gray-100 bg-gray-50 px-3 py-2 transition-colors duration-200 group-hover:border-gray-200">
-              <div className="text-[11px] text-gray-400">成本</div>
-              <div className="mt-0.5 font-semibold text-gray-900 tabular-nums">
-                {formatCurrency(dish.cost)}
-              </div>
-            </div>
+          <div className="mt-1.5 flex items-center gap-3 text-xs">
+            <span className="text-gray-400">
+              原 <span className="font-semibold text-gray-600 tabular-nums">{formatCurrency(dish.price || 0)}</span>
+            </span>
+            <span className="text-gray-400">
+              成本 <span className="font-semibold text-gray-600 tabular-nums">{formatCurrency(dish.cost)}</span>
+            </span>
           </div>
         </div>
-      </div>
 
-      {/* 数量调整区域 */}
-      <div
-        className={cn(
-          'mt-4 overflow-hidden transition-all duration-300',
-          isSelected ? 'max-h-24 opacity-100' : 'max-h-0 opacity-0'
-        )}
-        onClick={(event) => event.stopPropagation()}
-      >
-        <div className="flex items-center justify-between rounded-xl border border-[#1E3A5F]/20 bg-white px-4 py-3">
-          <div>
-            <div className="text-xs font-medium text-gray-600">已选数量</div>
-            <div className="mt-0.5 text-[11px] text-gray-400">仅在当前套餐中生效</div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="h-8 w-8 rounded-full border-gray-300 bg-white text-gray-600 transition-all duration-150 hover:border-[#1E3A5F] hover:bg-[#1E3A5F] hover:text-white active:scale-95"
-              onClick={() => onUpdateQuantity(-1)}
-            >
-              <Minus className="h-3 w-3" />
-            </Button>
-            <div className="min-w-[32px] text-center text-sm font-bold tabular-nums">
-              {quantity}
-            </div>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="h-8 w-8 rounded-full border-gray-300 bg-white text-gray-600 transition-all duration-150 hover:border-[#1E3A5F] hover:bg-[#1E3A5F] hover:text-white active:scale-95"
-              onClick={() => onUpdateQuantity(1)}
-            >
-              <Plus className="h-3 w-3" />
-            </Button>
-          </div>
+        {/* 数量调整 - 右侧紧凑 */}
+        <div
+          className={cn(
+            'flex items-center gap-1 transition-all duration-200',
+            isSelected ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          )}
+          onClick={(event) => event.stopPropagation()}
+        >
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="h-7 w-7 rounded-full border-gray-300 bg-white text-gray-600 transition-all duration-150 hover:border-[#1E3A5F] hover:bg-[#1E3A5F] hover:text-white active:scale-95"
+            onClick={() => onUpdateQuantity(-1)}
+          >
+            <Minus className="h-3 w-3" />
+          </Button>
+          <span className="min-w-[24px] text-center text-sm font-bold tabular-nums">
+            {quantity}
+          </span>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="h-7 w-7 rounded-full border-gray-300 bg-white text-gray-600 transition-all duration-150 hover:border-[#1E3A5F] hover:bg-[#1E3A5F] hover:text-white active:scale-95"
+            onClick={() => onUpdateQuantity(1)}
+          >
+            <Plus className="h-3 w-3" />
+          </Button>
         </div>
       </div>
     </div>
@@ -421,8 +404,8 @@ export const MealCreator: React.FC<MealCreatorProps> = ({
       <DialogContent
         showCloseButton={false}
         className={cn(
-          'grid-rows-[auto,minmax(0,1fr),auto] w-[calc(100vw-24px)] max-w-[1400px] gap-0 overflow-hidden rounded-2xl border border-gray-200 bg-white p-0 shadow-2xl',
-          'sm:w-[calc(100vw-48px)] sm:h-[min(920px,calc(100vh-48px))]',
+          'grid-rows-[auto,minmax(0,1fr),auto] w-[calc(100vw-24px)] max-w-[1600px] gap-0 overflow-hidden rounded-2xl border border-gray-200 bg-white p-0 shadow-2xl',
+          'sm:w-[calc(100vw-48px)] sm:h-[min(960px,calc(100vh-48px))]',
           'animate-[dialogEnter_240ms_cubic-bezier(0.16,1,0.3,1)_ease-out]'
         )}
       >
@@ -455,33 +438,33 @@ export const MealCreator: React.FC<MealCreatorProps> = ({
           </DialogClose>
         </DialogHeader>
 
-        {/* Main Content */}
-        <div className="grid min-h-0 flex-1 grid-cols-1 overflow-hidden xl:grid-cols-[minmax(0,1.2fr)_minmax(420px,1fr)] xl:overflow-hidden">
+        {/* Main Content - 左右分栏，左侧更大 */}
+        <div className="grid min-h-0 flex-1 grid-cols-1 overflow-hidden lg:grid-cols-[minmax(0,1.5fr)_minmax(380px,1fr)] xl:overflow-hidden">
           {/* Left: 选菜区 */}
-          <section className="order-2 flex min-h-0 flex-col border-t border-gray-100 bg-gray-50/50 xl:order-1 xl:border-t-0 xl:border-r">
-            <div className="border-b border-gray-100 bg-white px-5 py-5 xl:px-6">
-              <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+          <section className="order-2 flex min-h-0 flex-col border-t border-gray-100 bg-gray-50/50 lg:order-1 lg:border-t-0 lg:border-r">
+            <div className="border-b border-gray-100 bg-white px-4 py-3 lg:px-5">
+              <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
                 <div>
-                  <h3 className="text-lg font-bold text-[#0F172A]">选菜区</h3>
-                  <p className="mt-0.5 text-xs text-gray-500">选择菜品组合，调整数量</p>
+                  <h3 className="text-base font-bold text-[#0F172A]">选菜区</h3>
+                  <p className="text-xs text-gray-500">选择菜品组合</p>
                 </div>
-                <div className="inline-flex items-center gap-2 rounded-full bg-[#1E3A5F]/5 px-3 py-1.5">
+                <div className="inline-flex items-center rounded-full bg-[#1E3A5F]/5 px-2.5 py-1">
                   <span className="text-xs font-semibold text-[#1E3A5F]">
-                    已选 {selectedDishes.size} 种 / {totalSelectedQty} 份
+                    {selectedDishes.size}/{totalSelectedQty}
                   </span>
                 </div>
               </div>
 
               {/* 搜索框 */}
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                 <Input
                   type="text"
-                  placeholder="搜索菜品名称..."
+                  placeholder="搜索菜品..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className={cn(
-                    'h-11 rounded-xl border-gray-200 bg-white pl-11 pr-4',
+                    'h-9 rounded-lg border-gray-200 bg-white pl-9 pr-3',
                     'text-sm text-gray-900 placeholder:text-gray-400',
                     'transition-all duration-150',
                     'hover:border-gray-300',
@@ -491,7 +474,7 @@ export const MealCreator: React.FC<MealCreatorProps> = ({
               </div>
 
               {/* 分类标签 */}
-              <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+              <div className="mt-2 flex gap-1.5 overflow-x-auto pb-1">
                 {categories.map((cat) => (
                   <Button
                     key={cat}
@@ -500,7 +483,7 @@ export const MealCreator: React.FC<MealCreatorProps> = ({
                     size="sm"
                     onClick={() => setCategory(cat)}
                     className={cn(
-                      'h-8 rounded-full border px-4 text-xs font-semibold',
+                      'h-7 rounded-full border px-3 text-xs font-semibold',
                       'transition-all duration-150',
                       category === cat
                         ? 'border-[#1E3A5F] bg-[#1E3A5F] text-white hover:bg-[#162D4A]'
@@ -514,8 +497,8 @@ export const MealCreator: React.FC<MealCreatorProps> = ({
             </div>
 
             {/* 菜品列表 */}
-            <ScrollArea className="flex-1 px-5 py-4 xl:px-6">
-              <div className="space-y-3">
+            <ScrollArea className="flex-1 px-4 py-3 lg:px-5">
+              <div className="space-y-2">
                 {filteredDishes.length === 0 ? (
                   <div className="rounded-2xl border-2 border-dashed border-gray-200 bg-white px-6 py-12 text-center">
                     <p className="text-sm font-medium text-gray-500">未找到匹配菜品</p>
@@ -538,14 +521,13 @@ export const MealCreator: React.FC<MealCreatorProps> = ({
             </ScrollArea>
           </section>
 
-          {/* Right: 定价区 */}
-          <section className="order-1 min-h-0 overflow-y-auto bg-white px-5 py-5 xl:order-2 xl:px-6 xl:py-6">
-            <div className="space-y-5">
+          {/* Right: 定价区 - 更紧凑 */}
+          <section className="order-1 min-h-0 overflow-y-auto bg-white px-4 py-4 lg:order-2 lg:px-5 lg:py-5">
+            <div className="space-y-4">
               {/* 套餐名称 */}
-              <div className="rounded-2xl border border-gray-100 bg-gray-50/50 p-5">
-                <div className="mb-3">
-                  <h3 className="text-base font-bold text-[#0F172A]">套餐名称</h3>
-                  <p className="mt-0.5 text-xs text-gray-500">名称会直接用于前台展示</p>
+              <div className="rounded-xl border border-gray-100 bg-gray-50/50 p-3">
+                <div className="mb-2">
+                  <h3 className="text-sm font-bold text-[#0F172A]">套餐名称</h3>
                 </div>
                 <Input
                   type="text"
@@ -553,7 +535,7 @@ export const MealCreator: React.FC<MealCreatorProps> = ({
                   onChange={(e) => setName(e.target.value)}
                   placeholder="例如：花生煲鸡爪 2-3 人餐"
                   className={cn(
-                    'h-12 rounded-xl border-gray-200 bg-white px-4',
+                    'h-10 rounded-lg border-gray-200 bg-white px-3',
                     'text-sm text-gray-900 placeholder:text-gray-400',
                     'transition-all duration-150',
                     'hover:border-gray-300',
@@ -563,17 +545,17 @@ export const MealCreator: React.FC<MealCreatorProps> = ({
               </div>
 
               {/* 已选菜品摘要 */}
-              <div className="rounded-2xl border border-gray-100 p-5">
+              <div className="rounded-xl border border-gray-100 p-3">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
-                    <h3 className="text-base font-bold text-[#0F172A]">已选菜品</h3>
-                    <p className="mt-0.5 text-xs text-gray-500">
-                      {selectedDishes.size} 种菜 / {totalSelectedQty} 份
+                    <h3 className="text-sm font-bold text-[#0F172A]">已选菜品</h3>
+                    <p className="text-xs text-gray-500">
+                      {selectedDishes.size} 种 / {totalSelectedQty} 份
                     </p>
                   </div>
                 </div>
 
-                <div className="mt-4 flex min-h-[60px] flex-wrap gap-2">
+                <div className="mt-3 flex min-h-[40px] flex-wrap gap-1.5">
                   {selectedDishes.size > 0 ? (
                     Array.from(selectedDishes.entries()).map(([id, qty]) => {
                       const dish = dishes.find((d) => d.id === id);
@@ -581,52 +563,51 @@ export const MealCreator: React.FC<MealCreatorProps> = ({
                       return (
                         <div
                           key={id}
-                          className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-3 py-1.5 text-sm text-gray-700"
+                          className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs text-gray-700"
                         >
-                          <span className="max-w-[140px] truncate">{dish.name}</span>
-                          <span className="rounded-full bg-[#1E3A5F]/10 px-2 py-0.5 text-[11px] font-semibold text-[#1E3A5F]">
+                          <span className="max-w-[100px] truncate">{dish.name}</span>
+                          <span className="rounded-full bg-[#1E3A5F]/10 px-1.5 py-0.5 text-[10px] font-semibold text-[#1E3A5F]">
                             ×{qty}
                           </span>
                         </div>
                       );
                     })
                   ) : (
-                    <div className="flex w-full items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 px-4 py-4 text-sm text-gray-400">
+                    <div className="flex w-full items-center justify-center rounded-lg border-2 border-dashed border-gray-200 bg-gray-50 px-4 py-3 text-xs text-gray-400">
                       从左侧选择菜品
                     </div>
                   )}
                 </div>
 
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  <div className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
-                    <div className="text-xs font-medium text-gray-500">组合总原价</div>
-                    <div className="mt-1 text-xl font-bold text-gray-900 tabular-nums">
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <div className="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2">
+                    <div className="text-[10px] font-medium text-gray-500">总原价</div>
+                    <div className="mt-0.5 text-lg font-bold text-gray-900 tabular-nums">
                       {formatCurrency(totalOriginalPrice)}
                     </div>
                   </div>
-                  <div className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
-                    <div className="text-xs font-medium text-gray-500">组合总成本</div>
-                    <div className="mt-1 text-xl font-bold text-gray-900 tabular-nums">
+                  <div className="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2">
+                    <div className="text-[10px] font-medium text-gray-500">总成本</div>
+                    <div className="mt-0.5 text-lg font-bold text-gray-900 tabular-nums">
                       {formatCurrency(totalCost)}
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* 定价输入 */}
-              <div className="space-y-3">
-                <h3 className="text-base font-bold text-[#0F172A]">定价输入</h3>
+              {/* 定价输入 - 更紧凑 */}
+              <div className="space-y-2">
+                <h3 className="text-sm font-bold text-[#0F172A]">定价</h3>
 
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="grid grid-cols-2 gap-3">
                   {/* 秒杀价 */}
-                  <div className="rounded-2xl border border-gray-100 p-4">
-                    <div className="mb-3">
-                      <div className="text-sm font-semibold text-gray-900">秒杀价</div>
-                      <p className="mt-0.5 text-xs text-gray-500">用户实际看到的售卖价格</p>
+                  <div className="rounded-xl border border-gray-100 p-3">
+                    <div className="mb-2">
+                      <div className="text-xs font-semibold text-gray-900">秒杀价</div>
                     </div>
 
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-500">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-gray-500">
                         ¥
                       </span>
                       <Input
@@ -637,8 +618,8 @@ export const MealCreator: React.FC<MealCreatorProps> = ({
                           setPromoPrice1(e.target.value === '' ? '' : parseFloat(e.target.value))
                         }
                         className={cn(
-                          'h-12 rounded-xl border-gray-200 bg-gray-50 pl-9 pr-4',
-                          'text-xl font-bold text-gray-900 tabular-nums',
+                          'h-10 rounded-lg border-gray-200 bg-gray-50 pl-7 pr-3',
+                          'text-lg font-bold text-gray-900 tabular-nums',
                           'placeholder:text-gray-300',
                           'transition-all duration-150',
                           'hover:border-gray-300',
@@ -650,23 +631,19 @@ export const MealCreator: React.FC<MealCreatorProps> = ({
                       />
                     </div>
 
-                    <div className="mt-3 flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 px-3 py-2">
-                      <span className="text-xs font-medium text-gray-500">参考折扣</span>
-                      <span className="text-sm font-semibold text-[#1E3A5F] tabular-nums">
-                        {flashSalePrice > 0 ? `${calculateDiscount(flashSalePrice).toFixed(1)} 折` : '待填写'}
-                      </span>
+                    <div className="mt-2 text-center text-xs text-gray-500">
+                      {flashSalePrice > 0 ? `${calculateDiscount(flashSalePrice).toFixed(1)} 折` : '待填写'}
                     </div>
                   </div>
 
                   {/* 官方补贴 */}
-                  <div className="rounded-2xl border border-gray-100 p-4">
-                    <div className="mb-3">
-                      <div className="text-sm font-semibold text-gray-900">官方补贴金额</div>
-                      <p className="mt-0.5 text-xs text-gray-500">用于计算补贴后实际入账</p>
+                  <div className="rounded-xl border border-gray-100 p-3">
+                    <div className="mb-2">
+                      <div className="text-xs font-semibold text-gray-900">官方补贴</div>
                     </div>
 
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-500">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-gray-500">
                         ¥
                       </span>
                       <Input
@@ -677,103 +654,92 @@ export const MealCreator: React.FC<MealCreatorProps> = ({
                           setPromoPrice2(e.target.value === '' ? undefined : parseFloat(e.target.value))
                         }
                         className={cn(
-                          'h-12 rounded-xl border-gray-200 bg-gray-50 pl-9 pr-4',
-                          'text-xl font-bold text-gray-900 tabular-nums',
+                          'h-10 rounded-lg border-gray-200 bg-gray-50 pl-7 pr-3',
+                          'text-lg font-bold text-gray-900 tabular-nums',
                           'placeholder:text-gray-300',
                           'transition-all duration-150',
                           'hover:border-gray-300',
                           'focus:border-[#1E3A5F] focus:bg-white focus:ring-[#1E3A5F]/10'
                         )}
-                        placeholder="留空表示无补贴"
+                        placeholder="留空"
                         min="0"
                         step="0.01"
                       />
                     </div>
 
-                    <div className="mt-3 flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 px-3 py-2">
-                      <span className="text-xs font-medium text-gray-500">补贴后到手价</span>
-                      <span className="text-sm font-semibold text-[#1E3A5F] tabular-nums">
-                        {hasSubsidy ? formatCurrency(finalPrice) : '待填写补贴'}
-                      </span>
+                    <div className="mt-2 text-center text-xs text-gray-500">
+                      到手 {hasSubsidy ? formatCurrency(finalPrice) : '-'}
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* 利润结果区 */}
+              {/* 利润结果区 - 紧凑版 */}
               <div
                 className={cn(
-                  'rounded-2xl border-2 p-5',
+                  'rounded-xl border-2 p-4',
                   effectiveMarginMeta.borderClassName,
                   effectiveMarginMeta.bgClassName
                 )}
               >
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <h3 className="text-base font-bold text-[#0F172A]">利润分析</h3>
-                    <p className="mt-0.5 text-xs text-gray-500">基于当前定价的毛利预测</p>
-                  </div>
-                  <span className={cn('inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold', effectiveMarginMeta.badgeClassName)}>
-                    <StatusIcon className="h-3.5 w-3.5" />
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="text-sm font-bold text-[#0F172A]">利润分析</h3>
+                  <span className={cn('inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold', effectiveMarginMeta.badgeClassName)}>
+                    <StatusIcon className="h-3 w-3" />
                     {effectiveMarginMeta.label}
                   </span>
                 </div>
 
-                {/* 核心数据展示 */}
-                <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto]">
-                  <div className="rounded-xl border border-gray-200/50 bg-white p-4">
-                    <div className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-                      {hasSubsidy ? '最终到手价' : '秒杀价入账'}
+                {/* 核心数据一行展示 */}
+                <div className="mt-3 flex items-center gap-4">
+                  {/* 到手价 */}
+                  <div className="flex-1 rounded-lg border border-gray-200/50 bg-white p-3">
+                    <div className="text-[10px] font-medium uppercase tracking-wider text-gray-500">
+                      {hasSubsidy ? '到手价' : '入账'}
                     </div>
-                    <div className="mt-2 text-3xl font-bold tracking-tight text-[#1E3A5F] tabular-nums">
+                    <div className="mt-1 text-2xl font-bold tracking-tight text-[#1E3A5F] tabular-nums">
                       {formatCurrency(hasSubsidy ? finalPrice : flashSalePrice)}
                     </div>
-                    <p className="mt-1 text-xs text-gray-500">
-                      {hasSubsidy ? '秒杀价减去补贴后的实际入账' : '当前秒杀价对应的实际入账'}
-                    </p>
                   </div>
 
-                  {/* 毛利率仪表盘 */}
-                  <div className="flex items-center justify-center rounded-xl border border-gray-200/50 bg-white p-4">
-                    <MarginRing value={effectiveMargin} size={88} />
+                  {/* 毛利率仪表盘 - 缩小 */}
+                  <div className="flex items-center justify-center">
+                    <MarginRing value={effectiveMargin} size={64} />
                   </div>
                 </div>
 
-                {/* 详细数据 */}
-                <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                  <div className="rounded-lg border border-gray-200/50 bg-white px-3 py-2.5">
-                    <div className="text-[11px] font-medium text-gray-500">组合总原价</div>
-                    <div className="mt-1 text-base font-bold text-gray-900 tabular-nums">
+                {/* 详细数据 - 更紧凑 */}
+                <div className="mt-3 grid grid-cols-4 gap-2">
+                  <div className="rounded-lg border border-gray-200/50 bg-white px-2 py-1.5 text-center">
+                    <div className="text-[10px] text-gray-500">原价</div>
+                    <div className="mt-0.5 text-sm font-bold text-gray-900 tabular-nums">
                       {formatCurrency(totalOriginalPrice)}
                     </div>
                   </div>
-                  <div className="rounded-lg border border-gray-200/50 bg-white px-3 py-2.5">
-                    <div className="text-[11px] font-medium text-gray-500">组合总成本</div>
-                    <div className="mt-1 text-base font-bold text-gray-900 tabular-nums">
+                  <div className="rounded-lg border border-gray-200/50 bg-white px-2 py-1.5 text-center">
+                    <div className="text-[10px] text-gray-500">成本</div>
+                    <div className="mt-0.5 text-sm font-bold text-gray-900 tabular-nums">
                       {formatCurrency(totalCost)}
                     </div>
                   </div>
-                  <div className="rounded-lg border border-gray-200/50 bg-white px-3 py-2.5">
-                    <div className="text-[11px] font-medium text-gray-500">秒杀价毛利率</div>
-                    <div className={cn('mt-1 text-base font-bold tabular-nums', flashMarginMeta.valueClassName)}>
-                      {flashMargin.toFixed(1)}%
+                  <div className="rounded-lg border border-gray-200/50 bg-white px-2 py-1.5 text-center">
+                    <div className="text-[10px] text-gray-500">毛利</div>
+                    <div className={cn('mt-0.5 text-sm font-bold tabular-nums', flashMarginMeta.valueClassName)}>
+                      {flashMargin.toFixed(0)}%
                     </div>
                   </div>
-                  <div className="rounded-lg border border-gray-200/50 bg-white px-3 py-2.5">
-                    <div className="text-[11px] font-medium text-gray-500">
-                      {hasSubsidy ? '最终毛利率' : '预计净利润'}
-                    </div>
-                    <div className={cn('mt-1 text-base font-bold tabular-nums', effectiveMarginMeta.valueClassName)}>
-                      {hasSubsidy ? `${effectiveMargin.toFixed(1)}%` : formatCurrency(effectiveProfit)}
+                  <div className="rounded-lg border border-gray-200/50 bg-white px-2 py-1.5 text-center">
+                    <div className="text-[10px] text-gray-500">利润</div>
+                    <div className={cn('mt-0.5 text-sm font-bold tabular-nums', effectiveMarginMeta.valueClassName)}>
+                      {formatCurrency(effectiveProfit)}
                     </div>
                   </div>
                 </div>
 
-                {/* 补贴库存 */}
-                <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-[1fr_180px]">
-                  <div className="rounded-lg border border-gray-200/50 bg-white p-3">
-                    <label className="mb-2 block text-sm font-semibold text-gray-900">补贴库存</label>
-                    <p className="mb-2 text-xs text-gray-500">用于预估补贴资源占用</p>
+                {/* 补贴库存 - 简化 */}
+                <div className="mt-3 flex items-center gap-3 rounded-lg border border-gray-200/50 bg-white p-2">
+                  <div className="flex-1">
+                    <label className="text-xs font-medium text-gray-700">补贴库存</label>
                     <Input
                       type="number"
                       inputMode="numeric"
@@ -782,24 +748,22 @@ export const MealCreator: React.FC<MealCreatorProps> = ({
                         setSubsidyCount(e.target.value === '' ? '' : parseInt(e.target.value, 10))
                       }
                       className={cn(
-                        'h-10 rounded-lg border-gray-200 bg-gray-50 px-3',
+                        'mt-1 h-8 rounded-lg border-gray-200 bg-gray-50 px-2',
                         'text-sm text-gray-900',
                         'placeholder:text-gray-400',
                         'transition-all duration-150',
                         'hover:border-gray-300',
                         'focus:border-[#1E3A5F] focus:bg-white focus:ring-[#1E3A5F]/10'
                       )}
-                      placeholder="输入份数"
+                      placeholder="份数"
                       min="0"
                     />
                   </div>
-
-                  <div className="rounded-lg border border-gray-200/50 bg-white px-4 py-3">
-                    <div className="text-xs font-medium text-gray-500">补贴总额</div>
-                    <div className="mt-2 text-xl font-bold text-[#1E3A5F] tabular-nums">
+                  <div className="text-right">
+                    <div className="text-[10px] text-gray-500">补贴总额</div>
+                    <div className="text-base font-bold text-[#1E3A5F] tabular-nums">
                       {formatCurrency(totalSubsidyAmount)}
                     </div>
-                    <div className="mt-1 text-[11px] text-gray-400">补贴金额 × 补贴库存</div>
                   </div>
                 </div>
               </div>
@@ -807,30 +771,32 @@ export const MealCreator: React.FC<MealCreatorProps> = ({
           </section>
         </div>
 
-        {/* Footer */}
-        <div className="border-t border-gray-100 bg-white px-6 py-4 xl:px-8">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="space-y-0.5">
-              <div className="text-sm font-medium text-gray-900">
-                {selectedDishes.size > 0
-                  ? `已选 ${selectedDishes.size} 种菜，共 ${totalSelectedQty} 份`
-                  : '请先从左侧选择菜品'}
-              </div>
-              <div className="text-xs text-gray-500">
-                {selectedDishes.size > 0
-                  ? `预计净利润 ${formatCurrency(effectiveProfit)}，${hasSubsidy ? '补贴后' : '秒杀价'}毛利率 ${effectiveMargin.toFixed(1)}%`
-                  : '填写套餐名称、选择菜品并设置秒杀价后即可保存'}
-              </div>
+        {/* Footer - 紧凑版 */}
+        <div className="border-t border-gray-100 bg-white px-5 py-3 lg:px-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="text-sm">
+              {selectedDishes.size > 0 ? (
+                <span className="text-gray-900">
+                  <span className="font-semibold">{selectedDishes.size}</span> 种 /
+                  <span className="font-semibold"> {totalSelectedQty}</span> 份
+                  <span className="ml-2 text-gray-500">
+                    利润 <span className={cn('font-semibold', effectiveMarginMeta.valueClassName)}>{formatCurrency(effectiveProfit)}</span>
+                    <span className="ml-1">毛利 {effectiveMargin.toFixed(0)}%</span>
+                  </span>
+                </span>
+              ) : (
+                <span className="text-gray-500">请选择菜品</span>
+              )}
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+            <div className="flex gap-2">
               <Button
                 type="button"
                 variant="outline"
                 onClick={onCancel}
                 className={cn(
-                  'h-11 rounded-xl border-gray-200 bg-white px-6',
-                  'text-sm font-semibold text-gray-600',
+                  'h-9 rounded-lg border-gray-200 bg-white px-4',
+                  'text-sm font-medium text-gray-600',
                   'transition-all duration-150',
                   'hover:border-gray-300 hover:bg-gray-50 hover:text-gray-900'
                 )}
@@ -842,7 +808,7 @@ export const MealCreator: React.FC<MealCreatorProps> = ({
                 onClick={() => void handleSave()}
                 disabled={!canSave}
                 className={cn(
-                  'h-11 rounded-xl px-6',
+                  'h-9 rounded-lg px-5',
                   'text-sm font-semibold text-white',
                   'transition-all duration-150',
                   canSave
@@ -850,7 +816,7 @@ export const MealCreator: React.FC<MealCreatorProps> = ({
                     : 'cursor-not-allowed bg-gray-300'
                 )}
               >
-                {saving ? '保存中...' : initialData ? '更新套餐' : '保存套餐'}
+                {saving ? '保存中...' : initialData ? '更新' : '保存'}
               </Button>
             </div>
           </div>
