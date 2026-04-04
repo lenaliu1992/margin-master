@@ -243,7 +243,7 @@ export const MealCreator: React.FC<MealCreatorProps> = ({ dishes, initialData, o
 
         <div className="flex h-full min-h-0 overflow-hidden flex-row">
           {/* 左侧：选菜区 (自适应 flex-1) */}
-          <section className="flex flex-1 flex-col overflow-hidden border-r bg-white min-w-[400px]">
+          <section className="flex min-h-0 flex-1 flex-col overflow-hidden border-r bg-white">
             <div className="shrink-0 bg-gray-50 px-5 py-4 border-b">
               <div className="flex justify-between items-center mb-3">
                 <h3 className="font-bold text-lg">选菜区</h3>
@@ -259,13 +259,13 @@ export const MealCreator: React.FC<MealCreatorProps> = ({ dishes, initialData, o
                 ))}
               </div>
             </div>
-            <ScrollArea className="flex-1 p-4">
+            <div className="min-h-0 flex-1 overflow-y-auto p-4">
               <div className="space-y-2">
                 {filteredDishes.map((dish, i) => (
                   <DishCard key={dish.id} dish={dish} quantity={selectedDishes.get(dish.id) || 0} isSelected={selectedDishes.has(dish.id)} onToggle={() => toggleDish(dish.id)} onUpdateQuantity={(d) => updateQuantity(dish.id, d)} animationDelay={i * 20} />
                 ))}
               </div>
-            </ScrollArea>
+            </div>
           </section>
 
           {/* 右侧：定价区 (固定宽度 380px) */}
@@ -275,6 +275,42 @@ export const MealCreator: React.FC<MealCreatorProps> = ({ dishes, initialData, o
                 <div>
                   <label className="text-sm font-bold block mb-2">套餐名称</label>
                   <Input value={name} onChange={e => setName(e.target.value)} placeholder="输入名称..." className="bg-white" />
+                </div>
+
+                {/* 已选菜品摘要 */}
+                <div className="bg-white p-4 rounded-xl border shadow-sm">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-bold text-gray-900">已选菜品</h3>
+                    <span className="text-sm text-gray-500">{selectedDishes.size} 种 / {Array.from(selectedDishes.values()).reduce((sum, qty) => sum + qty, 0)} 份</span>
+                  </div>
+                  <div className="mt-3 flex min-h-[48px] flex-wrap gap-2">
+                    {selectedDishes.size > 0 ? (
+                      Array.from(selectedDishes.entries()).map(([id, qty]) => {
+                        const dish = dishes.find((d) => d.id === id);
+                        if (!dish) return null;
+                        return (
+                          <div key={id} className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-sm text-gray-700">
+                            <span className="max-w-[120px] truncate">{dish.name}</span>
+                            <span className="rounded-full bg-[#1E3A5F]/10 px-1.5 py-0.5 text-xs font-semibold text-[#1E3A5F]">×{qty}</span>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div className="flex w-full items-center justify-center rounded-lg border-2 border-dashed border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-400">
+                        从左侧选择菜品
+                      </div>
+                    )}
+                  </div>
+                  <div className="mt-4 grid grid-cols-2 gap-3">
+                    <div className="rounded-lg border border-gray-100 bg-gray-50 px-4 py-3">
+                      <div className="text-xs text-gray-500">组合总原价</div>
+                      <div className="mt-1 text-xl font-bold text-gray-900 tabular-nums">{formatCurrency(totalOriginalPrice)}</div>
+                    </div>
+                    <div className="rounded-lg border border-gray-100 bg-gray-50 px-4 py-3">
+                      <div className="text-xs text-gray-500">组合总成本</div>
+                      <div className="mt-1 text-xl font-bold text-gray-900 tabular-nums">{formatCurrency(totalCost)}</div>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="bg-white p-4 rounded-xl border shadow-sm space-y-4">
