@@ -1,28 +1,20 @@
 'use client';
 
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import { Minus, Plus, Search, X, TrendingUp, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Minus, Plus, Search, ArrowLeft } from 'lucide-react';
 import type { FrontendDish } from '@/services/api/dishesApi';
 import type { FrontendMeal } from '@/services/api/mealsApi';
 
 import { cn } from '@/lib/utils';
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
 
 interface MealCreatorProps {
   dishes: FrontendDish[];
   initialData?: FrontendMeal | null;
   onSave: (meal: Omit<FrontendMeal, 'id'>) => void | Promise<void>;
-  onCancel: () => void;
+  onCancel?: () => void;
 }
 
 type Category = '全部' | '代金券' | '主菜' | '小食' | '饮品';
@@ -107,8 +99,7 @@ const DishCard: React.FC<{
   isSelected: boolean;
   onToggle: () => void;
   onUpdateQuantity: (delta: number) => void;
-  animationDelay?: number;
-}> = ({ dish, quantity, isSelected, onToggle, onUpdateQuantity, animationDelay = 0 }) => {
+}> = ({ dish, quantity, isSelected, onToggle, onUpdateQuantity }) => {
   const category = getDishCategory(dish);
   const categoryStyle: Record<string, { bg: string; text: string }> = {
     '代金券': { bg: 'bg-purple-50', text: 'text-purple-700' },
@@ -191,6 +182,7 @@ export const MealCreator: React.FC<MealCreatorProps> = ({ dishes, initialData, o
   const finalPrice = useMemo(() => (Number(promoPrice1) || 0) - (Number(promoPrice2) || 0), [promoPrice1, promoPrice2]);
   const effectiveMargin = useMemo(() => finalPrice > 0 ? ((finalPrice - totalCost) / finalPrice) * 100 : 0, [finalPrice, totalCost]);
   const marginMeta = getMarginMeta(effectiveMargin);
+  const totalSelectedQty = Array.from(selectedDishes.values()).reduce((sum, qty) => sum + qty, 0);
 
   const toggleDish = (id: string) => {
     setSelectedDishes((prev) => {
@@ -223,136 +215,149 @@ export const MealCreator: React.FC<MealCreatorProps> = ({ dishes, initialData, o
     } finally { setSaving(false); }
   };
 
+  const handleCancel = () => {
+    if (onCancel) {
+      onCancel();
+    }
+  };
+
   return (
-    <Dialog open onOpenChange={(open) => !open && onCancel()}>
-      <DialogContent
-        showCloseButton={false}
-        className={cn(
-          // 关键修复：sm:max-w-none 移除框架限制，!max-w-[1200px] 强制展开宽度
-          '!grid !grid-rows-[auto_1fr_auto] w-[95vw] sm:max-w-none md:!max-w-[1200px] !p-0',
-          'h-[min(calc(100vh-48px),850px)] gap-0 overflow-hidden rounded-2xl border bg-white shadow-2xl'
-        )}
-      >
-        <DialogHeader className="flex flex-row items-center justify-between border-b bg-gray-50 px-6 py-4">
-          <div className="flex items-center gap-3">
-            <div className="rounded bg-[#1E3A5F] px-2 py-1 text-xs text-white">{initialData ? '编辑' : '新建'}</div>
-            <DialogTitle className="text-xl font-bold">套餐管理</DialogTitle>
-          </div>
-          <DialogClose asChild><Button variant="outline" size="icon"><X className="h-5 w-5" /></Button></DialogClose>
-        </DialogHeader>
-
-        <div className="flex h-full min-h-0 overflow-hidden flex-row">
-          {/* 左侧：选菜区 (自适应 flex-1) */}
-          <section className="flex min-h-0 flex-1 flex-col overflow-hidden border-r bg-white">
-            <div className="shrink-0 bg-gray-50 px-5 py-4 border-b">
-              <div className="flex justify-between items-center mb-3">
-                <h3 className="font-bold text-lg">选菜区</h3>
-                <span className="text-sm font-medium text-[#1E3A5F]">已选 {selectedDishes.size} 种</span>
-              </div>
-              <div className="relative mb-3">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input className="pl-9 h-10" placeholder="搜索菜品..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-              </div>
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                {categories.map(cat => (
-                  <Button key={cat} variant={category === cat ? 'default' : 'outline'} size="sm" className="rounded-full shrink-0" onClick={() => setCategory(cat)}>{cat}</Button>
-                ))}
-              </div>
-            </div>
-            <div className="min-h-0 flex-1 overflow-y-auto p-4">
-              <div className="space-y-2">
-                {filteredDishes.map((dish, i) => (
-                  <DishCard key={dish.id} dish={dish} quantity={selectedDishes.get(dish.id) || 0} isSelected={selectedDishes.has(dish.id)} onToggle={() => toggleDish(dish.id)} onUpdateQuantity={(d) => updateQuantity(dish.id, d)} animationDelay={i * 20} />
-                ))}
-              </div>
-            </div>
-          </section>
-
-          {/* 右侧：定价区 (固定宽度 380px) */}
-          <section className="w-[380px] shrink-0 flex flex-col bg-gray-50 border-l border-gray-200">
-            <ScrollArea className="flex-1">
-              <div className="p-5 space-y-5">
-                <div>
-                  <label className="text-sm font-bold block mb-2">套餐名称</label>
-                  <Input value={name} onChange={e => setName(e.target.value)} placeholder="输入名称..." className="bg-white" />
-                </div>
-
-                {/* 已选菜品摘要 */}
-                <div className="bg-white p-4 rounded-xl border shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-bold text-gray-900">已选菜品</h3>
-                    <span className="text-sm text-gray-500">{selectedDishes.size} 种 / {Array.from(selectedDishes.values()).reduce((sum, qty) => sum + qty, 0)} 份</span>
-                  </div>
-                  <div className="mt-3 flex min-h-[48px] flex-wrap gap-2">
-                    {selectedDishes.size > 0 ? (
-                      Array.from(selectedDishes.entries()).map(([id, qty]) => {
-                        const dish = dishes.find((d) => d.id === id);
-                        if (!dish) return null;
-                        return (
-                          <div key={id} className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-sm text-gray-700">
-                            <span className="max-w-[120px] truncate">{dish.name}</span>
-                            <span className="rounded-full bg-[#1E3A5F]/10 px-1.5 py-0.5 text-xs font-semibold text-[#1E3A5F]">×{qty}</span>
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <div className="flex w-full items-center justify-center rounded-lg border-2 border-dashed border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-400">
-                        从左侧选择菜品
-                      </div>
-                    )}
-                  </div>
-                  <div className="mt-4 grid grid-cols-2 gap-3">
-                    <div className="rounded-lg border border-gray-100 bg-gray-50 px-4 py-3">
-                      <div className="text-xs text-gray-500">组合总原价</div>
-                      <div className="mt-1 text-xl font-bold text-gray-900 tabular-nums">{formatCurrency(totalOriginalPrice)}</div>
-                    </div>
-                    <div className="rounded-lg border border-gray-100 bg-gray-50 px-4 py-3">
-                      <div className="text-xs text-gray-500">组合总成本</div>
-                      <div className="mt-1 text-xl font-bold text-gray-900 tabular-nums">{formatCurrency(totalCost)}</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white p-4 rounded-xl border shadow-sm space-y-4">
-                  <h4 className="font-bold text-sm text-gray-900">定价分析</h4>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div><label className="text-xs text-gray-500 mb-1 block">秒杀价</label><Input type="number" value={promoPrice1} onChange={e => setPromoPrice1(e.target.value === '' ? '' : Number(e.target.value))} className="bg-gray-50 font-bold" /></div>
-                    <div><label className="text-xs text-gray-500 mb-1 block">平台补贴</label><Input type="number" value={promoPrice2 ?? ''} onChange={e => setPromoPrice2(e.target.value === '' ? '' : Number(e.target.value))} className="bg-gray-50 font-bold" /></div>
-                  </div>
-                  
-                  <div className={cn("p-4 rounded-xl border-2 transition-colors", marginMeta.bgClassName, marginMeta.borderClassName)}>
-                    <div className="flex justify-between items-center mb-3">
-                      <span className="text-sm font-bold">最终利润分析</span>
-                      <span className={cn("text-xs px-2 py-0.5 rounded-full font-bold", marginMeta.badgeClassName)}>{marginMeta.label}</span>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <MarginRing value={effectiveMargin} size={64} />
-                      <div>
-                        <div className="text-2xl font-black text-[#1E3A5F]">{formatCurrency(finalPrice)}</div>
-                        <div className="text-xs text-gray-500">预估到手 (成本 {formatCurrency(totalCost)})</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white p-4 rounded-xl border shadow-sm">
-                  <label className="text-sm font-bold block mb-2">补贴库存设置</label>
-                  <Input type="number" value={subsidyCount} onChange={e => setSubsidyCount(e.target.value === '' ? '' : Number(e.target.value))} placeholder="输入补贴份数..." className="bg-white" />
-                  <p className="mt-2 text-xs text-gray-400">设置后将在前端显示“官方补贴”标识</p>
-                </div>
-              </div>
-            </ScrollArea>
-
-            <div className="p-5 border-t bg-white">
-               <Button className="w-full bg-[#1E3A5F] h-11 text-base font-bold hover:bg-[#162D4A] shadow-lg" onClick={() => void handleSave()} disabled={saving}>
-                 {saving ? '正在保存...' : initialData ? '更新套餐方案' : '确认发布套餐'}
-               </Button>
-               <Button variant="ghost" className="w-full mt-2 text-gray-400" onClick={onCancel}>取消操作</Button>
-            </div>
-          </section>
+    <div className="flex h-screen w-full flex-col bg-gray-50">
+      {/* Header */}
+      <header className="shrink-0 flex items-center justify-between bg-white px-6 py-4 border-b shadow-sm">
+        <div className="flex items-center gap-3">
+          <span className="rounded bg-[#1E3A5F] px-2 py-1 text-xs text-white">{initialData ? '编辑' : '新建'}</span>
+          <h1 className="text-xl font-bold text-gray-900">套餐管理</h1>
         </div>
-      </DialogContent>
-    </Dialog>
+        <button
+          onClick={handleCancel}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span className="text-sm font-medium">返回列表</span>
+        </button>
+      </header>
+
+      {/* 主内容区 - 响应式布局 */}
+      <div className="flex flex-1 min-h-0 flex-col md:flex-row">
+        {/* 左侧：选菜区 */}
+        <section className="flex min-h-0 flex-1 flex-col overflow-hidden bg-white md:border-r border-gray-200">
+          <div className="shrink-0 bg-gray-50 px-5 py-4 border-b">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="font-bold text-lg text-gray-900">选菜区</h3>
+              <span className="text-sm font-medium text-[#1E3A5F]">已选 {selectedDishes.size} 种</span>
+            </div>
+            <div className="relative mb-3">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input className="pl-9 h-10" placeholder="搜索菜品..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+            </div>
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {categories.map(cat => (
+                <Button key={cat} variant={category === cat ? 'default' : 'outline'} size="sm" className="rounded-full shrink-0" onClick={() => setCategory(cat)}>{cat}</Button>
+              ))}
+            </div>
+          </div>
+          <div className="min-h-0 flex-1 overflow-y-auto p-4">
+            <div className="space-y-2">
+              {filteredDishes.map((dish) => (
+                <DishCard
+                  key={dish.id}
+                  dish={dish}
+                  quantity={selectedDishes.get(dish.id) || 0}
+                  isSelected={selectedDishes.has(dish.id)}
+                  onToggle={() => toggleDish(dish.id)}
+                  onUpdateQuantity={(d) => updateQuantity(dish.id, d)}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* 右侧：定价区 */}
+        <aside className="md:w-[380px] shrink-0 flex flex-col bg-gray-50 border-t md:border-t-0 md:border-l border-gray-200">
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-5 space-y-5">
+              <div>
+                <label className="text-sm font-bold block mb-2 text-gray-700">套餐名称</label>
+                <Input value={name} onChange={e => setName(e.target.value)} placeholder="输入名称..." className="bg-white" />
+              </div>
+
+              {/* 已选菜品摘要 */}
+              <div className="bg-white p-4 rounded-xl border shadow-sm">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-gray-900">已选菜品</h3>
+                  <span className="text-sm text-gray-500">{selectedDishes.size} 种 / {totalSelectedQty} 份</span>
+                </div>
+                <div className="mt-3 flex min-h-[48px] flex-wrap gap-2">
+                  {selectedDishes.size > 0 ? (
+                    Array.from(selectedDishes.entries()).map(([id, qty]) => {
+                      const dish = dishes.find((d) => d.id === id);
+                      if (!dish) return null;
+                      return (
+                        <div key={id} className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-sm text-gray-700">
+                          <span className="max-w-[120px] truncate">{dish.name}</span>
+                          <span className="rounded-full bg-[#1E3A5F]/10 px-1.5 py-0.5 text-xs font-semibold text-[#1E3A5F]">×{qty}</span>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="flex w-full items-center justify-center rounded-lg border-2 border-dashed border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-400">
+                      从左侧选择菜品
+                    </div>
+                  )}
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <div className="rounded-lg border border-gray-100 bg-gray-50 px-4 py-3">
+                    <div className="text-xs text-gray-500">组合总原价</div>
+                    <div className="mt-1 text-xl font-bold text-gray-900 tabular-nums">{formatCurrency(totalOriginalPrice)}</div>
+                  </div>
+                  <div className="rounded-lg border border-gray-100 bg-gray-50 px-4 py-3">
+                    <div className="text-xs text-gray-500">组合总成本</div>
+                    <div className="mt-1 text-xl font-bold text-gray-900 tabular-nums">{formatCurrency(totalCost)}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-4 rounded-xl border shadow-sm space-y-4">
+                <h4 className="font-bold text-sm text-gray-900">定价分析</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <div><label className="text-xs text-gray-500 mb-1 block">秒杀价</label><Input type="number" value={promoPrice1} onChange={e => setPromoPrice1(e.target.value === '' ? '' : Number(e.target.value))} className="bg-gray-50 font-bold" /></div>
+                  <div><label className="text-xs text-gray-500 mb-1 block">平台补贴</label><Input type="number" value={promoPrice2 ?? ''} onChange={e => setPromoPrice2(e.target.value === '' ? '' : Number(e.target.value))} className="bg-gray-50 font-bold" /></div>
+                </div>
+
+                <div className={cn("p-4 rounded-xl border-2 transition-colors", marginMeta.bgClassName, marginMeta.borderClassName)}>
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-sm font-bold">最终利润分析</span>
+                    <span className={cn("text-xs px-2 py-0.5 rounded-full font-bold", marginMeta.badgeClassName)}>{marginMeta.label}</span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <MarginRing value={effectiveMargin} size={64} />
+                    <div>
+                      <div className="text-2xl font-black text-[#1E3A5F]">{formatCurrency(finalPrice)}</div>
+                      <div className="text-xs text-gray-500">预估到手 (成本 {formatCurrency(totalCost)})</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-4 rounded-xl border shadow-sm">
+                <label className="text-sm font-bold block mb-2 text-gray-700">补贴库存设置</label>
+                <Input type="number" value={subsidyCount} onChange={e => setSubsidyCount(e.target.value === '' ? '' : Number(e.target.value))} placeholder="输入补贴份数..." className="bg-white" />
+                <p className="mt-2 text-xs text-gray-400">设置后将在前端显示"官方补贴"标识</p>
+              </div>
+            </div>
+          </div>
+
+          {/* 底部操作栏 */}
+          <div className="shrink-0 p-5 border-t bg-white">
+            <Button className="w-full bg-[#1E3A5F] h-11 text-base font-bold hover:bg-[#162D4A] shadow-lg" onClick={() => void handleSave()} disabled={saving}>
+              {saving ? '正在保存...' : initialData ? '更新套餐方案' : '确认发布套餐'}
+            </Button>
+            <Button variant="ghost" className="w-full mt-2 text-gray-400" onClick={handleCancel}>取消操作</Button>
+          </div>
+        </aside>
+      </div>
+    </div>
   );
 };
 
