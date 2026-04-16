@@ -646,3 +646,67 @@ export const exportMealTemplate = () => {
   XLSX.utils.book_append_sheet(workbook, worksheet, '套餐导入模板');
   XLSX.writeFile(workbook, '套餐导入模板.xlsx');
 };
+
+export const exportDishLibrary = (
+  dishes: Array<{
+    name: string;
+    cost: number;
+    price?: number;
+    categoryName?: string;
+  }>
+) => {
+  const sorted = [...dishes].sort((a, b) => {
+    const catA = a.categoryName?.trim() || '其他';
+    const catB = b.categoryName?.trim() || '其他';
+    if (catA !== catB) return catA.localeCompare(catB, 'zh-CN');
+    return a.name.localeCompare(b.name, 'zh-CN');
+  });
+
+  const rows = sorted.map((dish, index) => ({
+    序号: index + 1,
+    菜品名称: dish.name,
+    分类: dish.categoryName?.trim() || '其他',
+    售价: dish.price ?? 0,
+    成本: dish.cost,
+    毛利率: dish.price ? ((dish.price - dish.cost) / dish.price * 100) : '-',
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(rows);
+
+  // 为售价和成本列设置数字格式
+  const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1');
+  for (let row = range.s.r + 1; row <= range.e.r; row++) {
+    // 售价列 (D, col=3)
+    const priceCell = worksheet[XLSX.utils.encode_cell({ r: row, c: 3 })];
+    if (priceCell && typeof priceCell.v === 'number') {
+      priceCell.z = '"¥"#,##0.00';
+    }
+    // 成本列 (E, col=4)
+    const costCell = worksheet[XLSX.utils.encode_cell({ r: row, c: 4 })];
+    if (costCell && typeof costCell.v === 'number') {
+      costCell.z = '"¥"#,##0.00';
+    }
+    // 毛利率列 (F, col=5) - 数字值添加百分比格式
+    const marginCell = worksheet[XLSX.utils.encode_cell({ r: row, c: 5 })];
+    if (marginCell && typeof marginCell.v === 'number') {
+      marginCell.z = '0.00"%"';
+    }
+  }
+
+  worksheet['!cols'] = [
+    { wch: 8 },   // 序号
+    { wch: 25 },  // 菜品名称
+    { wch: 12 },  // 分类
+    { wch: 12 },  // 售价
+    { wch: 12 },  // 成本
+    { wch: 12 },  // 毛利率
+  ];
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, '菜品库明细');
+
+  const now = new Date();
+  const date = now.toISOString().split('T')[0];
+  const time = now.toTimeString().split(' ')[0].replace(/:/g, '-');
+  XLSX.writeFile(workbook, `菜品库_${date}_${time}.xlsx`);
+};

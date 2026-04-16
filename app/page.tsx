@@ -23,6 +23,7 @@ import { categoriesApi } from '@/services/api/categoriesApi';
 import type { FrontendDish } from '@/services/api/dishesApi';
 import type { FrontendMeal } from '@/services/api/mealsApi';
 import {
+  exportDishLibrary,
   exportMealTemplate,
   exportToExcel,
   importDishesFromExcel,
@@ -527,6 +528,18 @@ export default function Home() {
     await executeDishImport(parsedDishes, strategy, duplicates);
   };
 
+  const handleExportDishes = () => {
+    if (dishes.length === 0) {
+      alert('没有菜品数据可以导出，请先添加菜品');
+      return;
+    }
+    try {
+      exportDishLibrary(dishes);
+    } catch (error) {
+      alert(`导出失败: ${error instanceof Error ? error.message : '未知错误'}`);
+    }
+  };
+
   if (loading) {
     return (
       <div className="app-container">
@@ -574,7 +587,7 @@ export default function Home() {
             className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:text-emerald-600 hover:border-emerald-600 transition-all active:scale-95"
           >
             <Download className="w-4 h-4" />
-            <span className="hidden sm:inline">导出 Excel</span>
+            <span className="hidden sm:inline">导出套餐数据</span>
           </button>
 
           <button
@@ -582,7 +595,7 @@ export default function Home() {
             className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:text-blue-600 hover:border-blue-600 transition-all active:scale-95"
           >
             <Upload className="w-4 h-4" />
-            <span className="hidden sm:inline">导入 Excel</span>
+            <span className="hidden sm:inline">导入套餐数据</span>
           </button>
 
           <input
@@ -646,6 +659,7 @@ export default function Home() {
               onUpdateDish={handleUpdateDish}
               onSingleDishMealCreated={handleSingleDishMealCreated}
               onImportDishes={() => document.getElementById('dish-import-input')?.click()}
+              onExportDishes={handleExportDishes}
               importingDishes={isImportingDishes}
             />
           </div>

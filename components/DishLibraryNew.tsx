@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Check, Edit, Filter, Package, Plus, Search, Settings, Trash2, Upload, X } from 'lucide-react';
+import { Check, Download, Edit, Filter, Package, Plus, Search, Settings, Trash2, Upload, X } from 'lucide-react';
 import { CategoryManagementDialog } from './CategoryManagementDialog';
 import { categoriesApi, type FrontendCategory } from '@/services/api/categoriesApi';
 import { dishesApi, type FrontendDish } from '@/services/api/dishesApi';
@@ -13,6 +13,7 @@ interface DishLibraryProps {
   onUpdateDish: (id: string, name: string, cost: number, price?: number, category?: string) => void | Promise<void>;
   onSingleDishMealCreated?: () => void | Promise<void>;
   onImportDishes?: () => void;
+  onExportDishes?: () => void;
   importingDishes?: boolean;
 }
 
@@ -37,6 +38,7 @@ export function DishLibraryNew({
   onUpdateDish,
   onSingleDishMealCreated,
   onImportDishes,
+  onExportDishes,
   importingDishes = false,
 }: DishLibraryProps) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -237,7 +239,15 @@ export function DishLibraryNew({
             disabled={importingDishes}
           >
             <Upload size={16} />
-            {importingDishes ? '导入中...' : '导入菜品'}
+            {importingDishes ? '导入中...' : '导入菜品库'}
+          </button>
+          <button
+            onClick={onExportDishes}
+            className="btn btn-secondary"
+            title="导出菜品库到 Excel"
+          >
+            <Download size={16} />
+            导出菜品库
           </button>
           <div className="search-box">
             <Search className="search-icon" size={18} />
