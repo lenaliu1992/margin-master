@@ -222,7 +222,7 @@ export const MealCreator: React.FC<MealCreatorProps> = ({ dishes, initialData, o
   };
 
   return (
-    <div className="flex h-screen w-full flex-col bg-gray-50">
+    <div className="fixed inset-0 z-50 flex flex-col bg-gray-50">
       {/* Header */}
       <header className="shrink-0 flex items-center justify-between bg-white px-6 py-4 border-b shadow-sm">
         <div className="flex items-center gap-3">
